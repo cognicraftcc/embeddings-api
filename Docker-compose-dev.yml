@@ -1,0 +1,13 @@
+# docker-compose-dev.yml for encodeimage-api
+
+services:
+  api:
+    build: .
+    image: embeddings_api 
+    environment:
+      FLASK_APP: embeddings_api.py
+      FLASK_DEBUG: 1
+    command: ["flask", "run", "--host=0.0.0.0", "--port=5681"]
+    ports:
+      - 5681:5681
+

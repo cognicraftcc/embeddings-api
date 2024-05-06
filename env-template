@@ -1,0 +1,2 @@
+# Environment variables for embedding-api
+JWT_SECRET_KEY=              # this key needs to match the one in app sending the API request

@@ -1,0 +1,9 @@
+# docker-compose.yml for encodeimage-api
+
+services:
+  api:
+    build: .
+    image: embeddings_api 
+    command: gunicorn -w 1 -b 0.0.0.0:5681 embeddings_api:app
+    ports:
+      - 5681:5681
