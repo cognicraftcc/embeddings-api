@@ -1,4 +1,4 @@
-# docker-compose-dev.yml for encodeimage-api
+# docker-compose-dev.yml for embeddings-api
 
 services:
   api:
