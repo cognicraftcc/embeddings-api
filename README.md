@@ -1,17 +1,17 @@
-**README: Embedding API**
+**README: Embeddings API**
 =====================================================
 
 **Overview**
 -----------------
 
-The `embedding` API is a Flask-based endpoint that encodes a text string and returns its embedding along with the user's ID. The API requires authentication using JSON Web Tokens (JWT) to ensure secure access.
+The `embeddings` API is a Flask-based endpoint that encodes a text string and returns its embeddings along with the user's ID. The API requires authentication using JSON Web Tokens (JWT) to ensure secure access.
 
 ***Key points***
 ---------------
 
-* **Authentication**: To use the `embedding` API, you must provide a valid JWT token in your request header.
+* **Authentication**: To use the `embeddings` API, you must provide a valid JWT token in your request header.
 * **JSON Payload**: Your request body should contain a JSON object with an `text` key with the string you want to embeddings for.
-* **Model**: The Hugging Face sentence transformer all-MiniLM-L6-v2 modoel is used for encoding images. 
+* **Model**: The Hugging Face sentence transformer all-MiniLM-L6-v2 model is used to perform the embeddings of vector size 384. 
 * **Reference**: https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
 
 ***Using the API***
