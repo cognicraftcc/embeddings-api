@@ -68,7 +68,7 @@ def process_data():
         if text:
 
             embeddings = model.encode(text)
-            embeddings_array = embeddings.numpy()  # Convert to NumPy array
+            # embeddings_array = embeddings.numpy()  # Convert to NumPy array
 
             print(f"Embeddings sucessful for {text}")
 
