@@ -35,4 +35,4 @@ RUN adduser -u 9876 --disabled-password --gecos "" appuser && chown -R appuser /
 USER appuser
 
 HEALTHCHECK --interval=60s --timeout=5s --retries=5\
-    CMD curl -f http://localhost:5680/healthcheck || exit 1
+    CMD curl -f http://localhost:5681/healthcheck || exit 1

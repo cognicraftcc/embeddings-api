@@ -68,12 +68,13 @@ def process_data():
         if text:
 
             embeddings = model.encode(text)
+            embeddings_array = embeddings.numpy()  # Convert to NumPy array
 
             print(f"Embeddings sucessful for {text}")
 
         # Return the user_id and caption in the response
         try:
-            return jsonify({'user_id': user_id, 'embeddings': embeddings, 'message': 'Text embeddings'})
+            return jsonify({'user_id': user_id, 'embeddings': embeddings_array.tolist(), 'message': 'Text embeddings'})
         except (ConnectionError, BrokenPipeError) as e:
             print(f"ConnectionError/BrokenPipeError: {e}")
             return jsonify({'error': 'ConnectionError/BrokenPipeError: Unable to send response', 'details': str(e)}), 500
