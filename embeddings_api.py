@@ -74,7 +74,7 @@ def process_data():
 
         # Return the user_id and caption in the response
         try:
-            return jsonify({'user_id': user_id, 'embeddings': embeddings_array.tolist(), 'message': 'Text embeddings'})
+            return jsonify({'user_id': user_id, 'embeddings': embeddings.tolist(), 'message': 'Text embeddings'})
         except (ConnectionError, BrokenPipeError) as e:
             print(f"ConnectionError/BrokenPipeError: {e}")
             return jsonify({'error': 'ConnectionError/BrokenPipeError: Unable to send response', 'details': str(e)}), 500
