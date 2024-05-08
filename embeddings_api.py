@@ -1,6 +1,5 @@
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
-# import time
 
 from sentence_transformers import SentenceTransformer
 
@@ -18,7 +17,7 @@ app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')  # Change this t
 jwt = JWTManager(app)
 
 # Global variables for the AI model
-image_model = None
+model = None
 model_initialized = Event()
 
 # Instantiate the AI model which takes time to load in a separate thread

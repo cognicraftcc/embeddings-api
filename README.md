@@ -42,3 +42,41 @@ If any of the following errors occur:
 * **Invalid text**: The provided `text` is invalid or cannot be accessed.
 
 The API will return an error response with a relevant message and HTTP status code (400 or 500).
+
+
+***Running in a Docker container***
+-----------------
+
+
+1. Rename file "env-template" to ".env" and add the key(s) listed.
+
+2. Before you begin, ensure you have  Docker and Docker Compose installed and running, and have downloaded the entire project directory including the docker-compose.yml file. You can use the following git command to clone the project.
+
+     ```
+     git clone https://github.com/cognicraftcc/embeddings-api
+     ```
+
+3. Build the project from the project directory by running
+     ```
+     docker-compose up -d
+     ```
+
+3. If database is not set up or need to be upgrade following the instructions for database migrations below.
+
+4. To use the api point your app with the above parameters to the following url to access the api. Replace 'localhost' with the hostname or ip address if the app is remote.
+     ```
+     http://localhost:5681/get_embeddings
+     ```
+
+5. For development and debugging purposes, you can run a separate docker-compose-dev.yml file as follows instead:
+
+     ```
+     docker-compose -f docker-compose-dev.yml up
+     ```
+
+6. To stop and remove all running containers and services, use the following command:
+
+     ```
+     docker-compose down
+     ```
+
