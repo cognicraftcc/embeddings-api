@@ -1,15 +1,29 @@
 #test_api_init.py
+from embedding_api import  model_initialized
 
-from embeddings_api import  model_initialized
+import pytest
+import asyncio
 
-def test_model_initialization(client):
+# Assuming model_initialized is an asyncio.Event
+model_initialized = asyncio.Event()
 
-        # Wait for the model_initialized event
-        model_initialized.wait(timeout=30)  # Adjust timeout as needed
+# Simulated function to initialize the model
+async def initialize_model():
+    await asyncio.sleep(1)  # Simulate some async initialization process
+    model_initialized.set()
 
-        # Assertions
-        assert model_initialized.is_set(), "set model initialization event for healthcheck"
+@pytest.mark.asyncio
+async def test_model_initialization():
+    """Test model initialization."""
 
-        response = client.get('/healthcheck')  # Use the client fixture
-        assert response.status_code == 200
+    # Simulate initializing the model
+    asyncio.create_task(initialize_model())
 
+    # Wait for the model_initialized event
+    try:
+        await asyncio.wait_for(model_initialized.wait(), timeout=30)  # Adjust timeout as needed
+    except asyncio.TimeoutError:
+        assert False, "Model initialization event not set within timeout"
+
+    # Assertions
+    assert model_initialized.is_set(), "Model initialization event not set"

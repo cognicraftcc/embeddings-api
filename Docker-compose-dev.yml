@@ -1,13 +1,12 @@
 # docker-compose-dev.yml for embeddings-api
 
+
 services:
   api:
     build: .
-    image: embeddings_api 
+    image: embeddings_api
+    command: ["uvicorn", "embedding_api:app", "--host=0.0.0.0", "--port=5681"]
     environment:
-      FLASK_APP: embeddings_api.py
-      FLASK_DEBUG: 1
-    command: ["flask", "run", "--host=0.0.0.0", "--port=5681"]
+      - DEBUG=True    
     ports:
-      - 5681:5681
-
+      - "5681:5681"  
