@@ -11,10 +11,14 @@ from typing import Dict
 
 from huggingface_hub import snapshot_download
 
-import logging
 # Configure logging
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)  # Get logger for the current module
+from loguru import logger
+
+# Remove system defaults
+logger.remove()
+
+# Configure file handler
+logger.add('embedding_api.log', format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}", level='INFO', serialize=True, rotation='1 day', retention='10 days' )
 
 
 load_dotenv()
@@ -26,11 +30,11 @@ class Settings(BaseModel):
     authjwt_secret_key: str = os.environ.get('JWT_SECRET_KEY')  # Change this to a secure secret key
 
 
-
 def get_jwt_token(request: Request) -> str:
     """Function to extract JWT token from request headers"""
     auth_header = request.headers.get("Authorization")
     if not auth_header or "Bearer " not in auth_header:
+        logger.error("Not authenticated") 
         raise HTTPException(status_code=401, detail="Not authenticated")
     token = auth_header.split("Bearer ")[1]
     return token
@@ -41,8 +45,6 @@ def verify_jwt_token(token: str, secret_key: str) -> dict:
         payload = jwt.decode(token, secret_key, algorithms=["HS256"])
         return payload
     except jwt.JWTError as e:
-        #raise HTTPException(status_code=401, detail="Invalid token")
-        #raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
         logger.error(f"JWT verification failed: {e}") 
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid token: {e}")
 
@@ -64,7 +66,8 @@ def instantiate_model():
         model = SentenceTransformer(model_path)
         return model        
     except Exception as e:
-        print(f"Error initializing model: {e}")
+#        print(f"Error initializing model: {e}")
+        logger.error(f"Error initializing model: {e}")
     finally:
         model_initialized.set()
 
@@ -79,25 +82,26 @@ class TextData(BaseModel):
 async def healthcheck():
   # if not model_initialized.wait(timeout=10): # need to change to async wait if want to use this for async
   if not model_initialized.is_set():
+    logger.warning("System unhealthy")
     return JSONResponse({"status": "unhealthy"}, status_code=503)
+  logger.info("System healthy")
   return JSONResponse({"status": "healthy"})
 
 
 
+@logger.catch()
 @app.post("/get_embeddings")
-# async def process_data(request: Request, user_id: str = Depends(verify_token)):
 async def process_data(request: Request):
-    print (request.headers)
+    logger.debug (request.headers)
     token = get_jwt_token(request)
     payload = verify_jwt_token(token, Settings().authjwt_secret_key)
 
     if not model_initialized.wait(timeout=10):  # Wait for model initialization with timeout
-        print("Model not initialized")
+        logger.error("Model not initialized")
         raise HTTPException(status_code=500, detail="Model initialization timeout")
     
     try:
         # Get the user_id from the JWT
-        # user_id = Authorize.get_jwt_subject()
         user_id = payload.get("sub")
         
         # Parse JSON data from the request
@@ -105,20 +109,21 @@ async def process_data(request: Request):
         text = data.get('text')
         
         if not text:
+            logger.error("No text data received")
             raise HTTPException(status_code=400, detail="No text data received")
 
         embeddings = model.encode(text)
 
-        print(f"Embeddings successful for {text}")
+        logger.info(f"Embeddings successful for {text}")
         
         # Return the user_id and caption in the response
         return {"user_id": user_id, "embeddings": embeddings.tolist(), "message": "Text embeddings"}
 
     except (ConnectionError, BrokenPipeError) as e:
-        print(f"ConnectionError/BrokenPipeError: {e}")
+        logger.error(f"ConnectionError/BrokenPipeError: {e}")
         raise HTTPException(status_code=500, detail=f"ConnectionError/BrokenPipeError: Unable to send response: {str(e)}")
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        logger.error(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 if __name__ == '__main__':

@@ -1,7 +1,8 @@
 python-dotenv
 fastapi
 python-jose
-uvicorn 
+uvicorn
+loguru
 
 # sentence-transformers dependencies
 transformers
