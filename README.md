@@ -80,3 +80,16 @@ The API will return an error response with a relevant message and HTTP status co
      docker-compose down
      ```
 
+***Pytest***
+-----------------
+
+To run Pytest, you'll also need to install the following libraries that are not in requirements.txt. This is intentional to reduce the size of the deployment docker image.
+
+    ```bash
+    
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+    pip install --no-deps sentence-transformers
+    pip install pytest pytest-mock pytest-asyncio
+
+    ```
+
