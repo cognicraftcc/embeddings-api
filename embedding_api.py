@@ -61,8 +61,8 @@ def instantiate_model():
         model_path = snapshot_download(repo_id='sentence-transformers/all-MiniLM-L6-v2')
 
         # Initialize SentenceTransformer model
-        model = SentenceTransformer(model_path)        
-
+        model = SentenceTransformer(model_path)
+        return model        
     except Exception as e:
         print(f"Error initializing model: {e}")
     finally:
@@ -77,7 +77,8 @@ class TextData(BaseModel):
 
 @app.get("/healthcheck")
 async def healthcheck():
-  if not model_initialized.wait(timeout=10):
+  # if not model_initialized.wait(timeout=10): # need to change to async wait if want to use this for async
+  if not model_initialized.is_set():
     return JSONResponse({"status": "unhealthy"}, status_code=503)
   return JSONResponse({"status": "healthy"})
 
