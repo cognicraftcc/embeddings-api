@@ -23,18 +23,19 @@ logger.add('embedding_api.log', format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {
 
 load_dotenv()
 
+# app = FastAPI(docs_url=None, redoc_url=None)
 app = FastAPI()
 #app = FastAPI(debug=True)
 
 class Settings(BaseModel):
     authjwt_secret_key: str = os.environ.get('JWT_SECRET_KEY')  # Change this to a secure secret key
 
-
+# NOTE: use debugger in https://jwt.io to test token authentication issues
 def get_jwt_token(request: Request) -> str:
     """Function to extract JWT token from request headers"""
     auth_header = request.headers.get("Authorization")
     if not auth_header or "Bearer " not in auth_header:
-        logger.error("Not authenticated") 
+        logger.error(f"Unable to authenticate {request.headers}") 
         raise HTTPException(status_code=401, detail="Not authenticated")
     token = auth_header.split("Bearer ")[1]
     return token
@@ -79,20 +80,65 @@ class TextData(BaseModel):
     text: str
 
 @app.get("/healthcheck")
-async def healthcheck():
-  # if not model_initialized.wait(timeout=10): # need to change to async wait if want to use this for async
-  if not model_initialized.is_set():
-    logger.warning("System unhealthy")
-    return JSONResponse({"status": "unhealthy"}, status_code=503)
-  logger.info("System healthy")
-  return JSONResponse({"status": "healthy"})
+async def healthcheck() -> JSONResponse:
+    """
+    Performs a health check to verify system readiness.
+
+    This endpoint checks if the underlying model has been successfully initialized.
+
+    **Response:**
+
+    - 200: OK - The system is healthy and operational.
+    - 503: Service Unavailable - The system is unhealthy (model not initialized).
+
+    **Body:**
+
+    ```json
+    {
+        "status": str  # "healthy" or "unhealthy" depending on system state
+    }
+    ```
+    """
+    if not model_initialized.is_set():
+        logger.warning("System unhealthy")
+        return JSONResponse({"status": "unhealthy"}, status_code=503)
+    logger.info("System healthy")
+    return JSONResponse({"status": "healthy"})
 
 
 
 @logger.catch()
 @app.post("/get_embeddings")
-async def process_data(request: Request):
-    logger.debug (request.headers)
+async def process_data(request: Request) -> dict:
+    """
+    This endpoint processes text data and generates embeddings.
+
+    **Authorization:** Bearer JWT token is required.
+
+    **Request Body:**
+
+    ```json
+    {
+        "text": "This is the text you want to generate embeddings for."
+    }
+    ```
+
+    **Response:**
+
+    ```json
+    {
+        "user_id": str,  # User ID extracted from the JWT token
+        "embeddings": list,  # List of generated embeddings
+        "message": str  # Message indicating successful processing
+    }
+    ```
+
+    **Errors:**
+
+    - 400: Bad Request - No text data provided in the request body.
+    - 500: Internal Server Error - Model initialization failed.
+    """
+    # logger.debug (request.headers)
     token = get_jwt_token(request)
     payload = verify_jwt_token(token, Settings().authjwt_secret_key)
 
@@ -114,7 +160,7 @@ async def process_data(request: Request):
 
         embeddings = model.encode(text)
 
-        logger.info(f"Embeddings successful for {text}")
+        logger.info(f"Embeddings successful for user {user_id}:{text}")
         
         # Return the user_id and caption in the response
         return {"user_id": user_id, "embeddings": embeddings.tolist(), "message": "Text embeddings"}

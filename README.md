@@ -9,7 +9,7 @@ The `embeddings` API is a Flask-based endpoint that encodes a text string and re
 ***Key points***
 ---------------
 
-* **Authentication**: To use the `embeddings` API, you must provide a valid JWT token in your request header.
+* **Authentication**: To use the `embeddings` API, you must provide a valid JWT token in your request header. (https://jwt.io)
 * **JSON Payload**: Your request body should contain a JSON object with an `text` key with the string you want to embeddings for.
 * **Model**: The Hugging Face sentence transformer all-MiniLM-L6-v2 model is used to perform the embeddings of vector size 384. 
 * **Reference**: https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
@@ -60,8 +60,6 @@ The API will return an error response with a relevant message and HTTP status co
      ```
      docker-compose up -d
      ```
-
-3. If database is not set up or need to be upgrade following the instructions for database migrations below.
 
 4. To use the api point your app with the above parameters to the following url to access the api. Replace 'localhost' with the hostname or ip address if the app is remote.
      ```
