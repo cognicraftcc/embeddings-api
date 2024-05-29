@@ -1,7 +1,6 @@
 import pytest
 from pytest_mock import mocker
 
-@pytest.mark.asyncio  # Mark the test as asynchronous even though using a synchronous client
 def test_healthcheck_success(test_client, mocker):
   """Tests if the /healthcheck endpoint returns a healthy status."""
 

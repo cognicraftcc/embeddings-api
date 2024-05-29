@@ -20,5 +20,6 @@ async def async_test_client():
 # Fixture to mock the model's encode method
 @pytest.fixture
 def mock_model(mocker):
-    mocker.patch("embedding_api.model.encode", return_value=[0.1, 0.2, 0.3])
+    mock_model = mocker.patch("embedding_api.model")
+    mock_model.encode.return_value = [0.1, 0.2, 0.3]
 
