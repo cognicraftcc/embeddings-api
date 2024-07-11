@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 
 # Test function using the test_client fixture
-def test_get_embeddings_no_text_error(test_client):
+def test_get_embeddings_no_text_error(test_client, fake_model):
 
     # JWT token config
     SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
@@ -37,7 +37,7 @@ def test_get_embeddings_no_text_error(test_client):
 
 
 # Test function using the test_client fixture
-def test_get_embeddings_connection_error(test_client, monkeypatch):
+def test_get_embeddings_connection_error(test_client, fake_model, monkeypatch):
 
     # JWT token config
     SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
@@ -73,7 +73,7 @@ def test_get_embeddings_connection_error(test_client, monkeypatch):
 
 
 # Test function using the test_client fixture
-def test_get_embeddings_broken_pipe(test_client, monkeypatch):
+def test_get_embeddings_broken_pipe(test_client, fake_model, monkeypatch):
 
     # JWT token config
     SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
@@ -109,7 +109,7 @@ def test_get_embeddings_broken_pipe(test_client, monkeypatch):
 
 
 # Test function using the test_client fixture
-def test_get_embeddings_success(test_client):
+def test_get_embeddings_success(test_client, fake_model):
 
     # JWT token config
     SECRET_KEY = os.environ.get('JWT_SECRET_KEY')

@@ -2,8 +2,8 @@ import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from embedding_api import app
-from pytest_mock import mocker
-
+from threading import Event
+import numpy as np
 
 @pytest.fixture(scope='session')
 def test_client():
@@ -18,8 +18,17 @@ async def async_test_client():
     yield client
 
 # Fixture to mock the model's encode method
-@pytest.fixture
-def mock_model(mocker):
-    mock_model = mocker.patch("embedding_api.model")
-    mock_model.encode.return_value = [0.1, 0.2, 0.3]
+@pytest.fixture(scope='function')
+def fake_model(monkeypatch):
 
+  class fake_model:
+    def encode(text):
+      return np.array([0.1, 0.2, 0.3])
+    
+  #For unit testing purposes bypass model
+  monkeypatch.setattr('embedding_api.model', fake_model)
+  #Set fake model_initialized flag
+  fake_event = Event()
+  fake_event.set()
+  monkeypatch.setattr('embedding_api.model_initialized', fake_event)
+  yield
