@@ -1,7 +1,6 @@
 from jose import jwt
 from datetime import datetime, timedelta, timezone
-import os
-from embedding_api import get_jwt_token, verify_jwt_token
+from embedding_api import verify_jwt_token
 from fastapi import HTTPException
 import pytest
 
