@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 
 # Test standard api call with real model
-def test_get_embeddings_success(test_client):
+def test_get_embeddings_standard_call(test_client):
 
     # JWT token config
     SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
