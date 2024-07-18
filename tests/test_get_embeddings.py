@@ -182,3 +182,73 @@ def test_get_embeddings_broken_pipe(test_client, fake_model, monkeypatch):
     assert response.status_code == 500
     # Assert error details
     assert response_data["detail"] == "ConnectionError/BrokenPipeError: Unable to send response: "
+
+
+# Test exception thrown in case of expired token
+def test_get_embeddings_expired_token(test_client, fake_model):
+
+    # JWT token config
+    SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
+    ALGORITHM = 'HS256'
+
+    token_data={"sub": "12345"}
+    expire = datetime.now(timezone.utc) + timedelta(minutes=-15)
+    token_data.update({"exp": expire})
+    token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
+
+    # Set headers with the token
+    headers = {"Authorization": f"Bearer {token}"}
+
+
+    # Send the POST request
+    response = test_client.post("/get_embeddings", headers=headers)
+    response_data = response.json()
+
+
+    # Assert the response status code
+    assert response.status_code == 400
+    # Assert error details
+    assert response_data["detail"] == "Invalid token: Signature has expired."
+
+
+# Test exception thrown in case of undecryptable token
+def test_get_embeddings_invalid_token(test_client, fake_model):
+
+    # JWT token config
+    SECRET_KEY = 'BAD_KEY'
+    ALGORITHM = 'HS256'
+
+    token_data={"sub": "12345"}
+    expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    token_data.update({"exp": expire})
+    token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
+
+    # Set headers with the token
+    headers = {"Authorization": f"Bearer {token}"}
+
+
+    # Send the POST request
+    response = test_client.post("/get_embeddings", headers=headers)
+    response_data = response.json()
+
+
+    # Assert the response status code
+    assert response.status_code == 400
+    # Assert error details
+    assert response_data["detail"] == 'Invalid token: Signature verification failed.'
+
+
+# Test exception thrown in case of invalid authorization header
+def test_get_embeddings_bad_header(test_client, fake_model):
+
+    # Test with missing token header
+    headers = {}
+    # Send the POST request
+    response = test_client.post("/get_embeddings", headers=headers)
+    response_data = response.json()
+
+
+    # Assert the response status code
+    assert response.status_code == 401
+    # Assert error details
+    assert response_data["detail"] == "Not authenticated"
