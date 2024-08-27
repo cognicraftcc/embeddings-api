@@ -155,7 +155,6 @@ async def process_data(request: Request) -> dict:
         text = data.get('text')
         
         if not text:
-            logger.error("No text data received")
             raise HTTPException(status_code=400, detail="No text data received")
 
         embeddings = model.encode(text)
@@ -168,6 +167,9 @@ async def process_data(request: Request) -> dict:
     except (ConnectionError, BrokenPipeError) as e:
         logger.error(f"ConnectionError/BrokenPipeError: {e}")
         raise HTTPException(status_code=500, detail=f"ConnectionError/BrokenPipeError: Unable to send response: {str(e)}")
+    except HTTPException as e:
+        logger.error(f"{e}")
+        raise e
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
